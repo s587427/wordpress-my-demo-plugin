@@ -1,5 +1,7 @@
 <?php
 
+// woocommerce_get_sections_products hook 可以得到products現有的section
+// woocommerce_get_settings_products hook 可以得到products當前的settion以及settings
 /**
  * Create the section beneath the products tab
  **/
