@@ -1,5 +1,7 @@
 <?php
 
+require_once plugin_dir_path(__FILE__) . "test.php";
+
 /* add sub menu */
 add_action('admin_menu', 'renderSubMenu');
 
@@ -46,6 +48,7 @@ function myCustomSubPageCallback() {
         </form>
     </div>
 <?php
+    WCSettingProduct::getInstance()->outputForm();
 }
 
 // Register a setting and create a field ()
