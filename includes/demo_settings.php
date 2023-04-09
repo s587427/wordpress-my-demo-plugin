@@ -2,6 +2,9 @@
 
 require_once plugin_dir_path(__FILE__) . "test.php";
 
+
+
+
 /* add sub menu */
 add_action('admin_menu', 'renderSubMenu');
 
@@ -41,65 +44,89 @@ function myCustomSubPageCallback() {
              */
             settings_errors('rudr_slider_settings_errors'); // 位置可以依照你想呈現錯誤的地方擺放
             // main output
-            settings_fields("myCustomOptionGroup"); //settings group name , prints hidden fields of this settings page.
-            do_settings_sections("myCustomSubPageSlug"); //  prints actually the fields. Pass your settings page slug
+            settings_fields("myCustomOptionGroup"); // use the correct option group name
+            settings_fields("anortherOptionGroup"); // use the correct option group name
+            do_settings_sections("myCustomSubPageSlug");
             submit_button(); // "Save Changes" button
             ?>
         </form>
     </div>
 
 <?php
-    // print_r(OltSettingsWCProduct::getInstance());
+
+    // OltSettingsWCProduct::getInstance()->printAddSettingsSections();
+    // OltSettingsWCProduct::getInstance()->printRegisterSettings();
+    // OltSettingsWCProduct::getInstance()->printAddSettingsFields();
     OltSettingsWCProduct::getInstance()->outputForm();
-    echo json_encode(OltSettingsWCProduct::getInstance());
+    // OltSettingsWCProduct::getInstance()->outputForm2();
+    // print_r(OltSettingsWCProduct::getInstance()->pages);
+    // print_r(OltSettingsWCProduct::getInstance()->optionGroups);
 }
 
 // Register a setting and create a field ()
 add_action("admin_init", "myCustomSettingsInit");
 function myCustomSettingsInit() {
-    /**
-     * 這邊$pageSlug 只要替換成系統內預設的就可以在原本的general, writing, reading, discussion, permalink 添加額外欄位
-     * 而且無需使用settings_fields(), do_settings_sections(),submit_button() 因為那些設置在Wordpress是自動調用的
-     * 但自己定義的就需要手動調用
-     */
-    $pageSlug = "myCustomSubPageSlug"; // slug-name of the settings page (可以跟menu的不一樣這是分開的), bulit in general, writing, reading, discussion, permalink.
-    $optionGroup = 'myCustomOptionGroup';
+    $pageSlug = "myCustomSubPageSlug";
+    $optionGroup1 = 'myCustomOptionGroup';
+    $optionGroup2 = 'anortherOptionGroup';
 
-    // setp1. 建立section
     add_settings_section(
         "myCustomSectionId",
-        "",  // title (optional)
-        "",  // callback function to display the section (optional)
+        "",
+        "",
         $pageSlug,
     );
 
-    // step2. 註冊欄位 register fields
-    register_setting($optionGroup, "slider_on", 'rudr_sanitize_checkbox');
-    register_setting($optionGroup, 'num_of_slides', "myValidateCallback");
-
-    // step3. 新增欄位 add fields, 記住先註冊在新增
-    add_settings_field(
-        'slider_on', // just is field的id, 儲存是看register_setting提供的name來儲存的
-        'Display slider', // field describe
-        'rudr_checkbox', // function to print the field
+    add_settings_section(
+        "myCustomSectionId2",
+        "第二個settion",
+        "",
         $pageSlug,
-        'myCustomSectionId', // section ID,
+    );
+
+    register_setting($optionGroup1, "slider_on", 'rudr_sanitize_checkbox');
+    register_setting($optionGroup1, 'num_of_slides', "myValidateCallback");
+    register_setting($optionGroup2, "nameOfanortherOptionGroup");
+
+    add_settings_field(
+        'slider_on',
+        'Display slider',
+        'rudr_checkbox',
+        $pageSlug,
+        'myCustomSectionId',
         array(
             "name" => "slider_on",
         )
-    );;
+    );
 
     add_settings_field(
         'num_of_slides',
         'Number of slides',
-        'rudr_number', // function to print the field
+        'rudr_number',
         $pageSlug,
         'myCustomSectionId',
-        array( // 此array會被傳入到打印這個field callback作為參數
+        array(
             'label_for' => 'num_of_slides',
-            'class' => 'hello', // for <tr> element
-            'name' => 'num_of_slides' // pass any custom parameters
+            'class' => 'hello',
+            'name' => 'num_of_slides'
         )
+    );
+
+    add_settings_field(
+        "nameOfanortherOptionGroup",
+        "nameOfanortherOptionGroup Title",
+        function ($args) {
+            $value = get_option($args["name"], "");
+
+            echo "<input id='" . $args["name"] . "' 
+                    name='" . $args["name"] . "'
+                    type='text' 
+                    value='" . $value . "'
+                 >";
+        },
+        $pageSlug,
+        "myCustomSectionId2",
+        array("name" => "nameOfanortherOptionGroup")
     );
 }
 
@@ -173,4 +200,14 @@ function rudr_notice() {
         </div>
 <?php
     }
+}
+
+//  test 
+
+add_action("admin_init", "settingsInitTest");
+
+function settingsInitTest() {
+    // add_settings_section('general_store_page', '商店頁面', '', 'olt-wc-product-general', 'Array ( ) ');
+    // add_settings_section('general_size', '尺寸', '', 'olt-wc-product-general', 'Array ( ) ');
+    // add_settings_section('stock_stock', '庫存', '', 'olt-wc-product-stock', 'Array ( ) ');
 }
