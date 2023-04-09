@@ -47,8 +47,11 @@ function myCustomSubPageCallback() {
             ?>
         </form>
     </div>
+
 <?php
-    WCSettingProduct::getInstance()->outputForm();
+    // print_r(OltSettingsWCProduct::getInstance());
+    OltSettingsWCProduct::getInstance()->outputForm();
+    echo json_encode(OltSettingsWCProduct::getInstance());
 }
 
 // Register a setting and create a field ()
