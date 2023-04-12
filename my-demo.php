@@ -45,9 +45,25 @@ function myCustomPageCallback() {
     $settings_general = require WC()->plugin_path() . "/includes/admin/settings/class-wc-settings-general.php";
 
 
-
-
     $settings = $settings_product->get_settings_for_section("inventory");
 
+
+
     print_r($settings);
+
+
+?>
+    <form method="POST">
+        <input type="number" name="age" value="18">
+        <input type="text" name="name" value="孫悟空">
+        <input type="hidden" name="secrue" value="ok">
+
+        <button type="submit">save</button>
+    </form>
+<?php
+}
+
+if (isset($_POST["secrue"])) {
+    print_r($_POST);
+    exit;
 }
