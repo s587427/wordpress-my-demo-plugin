@@ -1,0 +1,8 @@
+/* resolve conflicat boostrap and wordpress same class */
+.card {
+  box-shadow: initial !important;
+  box-sizing: initial !important;
+  max-width: initial !important;
+  margin-top: initial !important;
+  padding: initial !important;
+}
