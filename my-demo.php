@@ -18,7 +18,6 @@ define("VIEWS_PATH", plugin_dir_path(__FILE__) . "src/views");
 // include_once plugin_dir_path(__FILE__) . "includes/demo_woocommerce_add_new_tab_and_section.php";
 // include_once plugin_dir_path(__FILE__) . "includes/olt_settings_wc_product.php";
 // include_once plugin_dir_path(__FILE__) . "includes/demo_react_plugin.php";
-include INCLUDES_PATH . "/demo_custom_payment_fileds_save.php";
 
 //  是的，'plugins_loaded' 鉤子會在所有 WordPress 插件都加載完成後觸發。
 // 這包括所有已啟用的插件和主題中的功能。因此，當 'plugins_loaded' 鉤子被觸發時
@@ -31,6 +30,7 @@ function my_plugin_init() {
         // 在這裡加載您的插件
         require_once WC()->plugin_path() . "/includes/admin/settings/class-wc-settings-page.php";
         // 獲取 WooCommerce 對象
+        include INCLUDES_PATH . "/demo_woocommerce_payment.php";
     }
 
 }
@@ -49,11 +49,13 @@ function registerTopMenu() {
 }
 
 function renderPage() {
+
     enqueueWooCommerceAssets();
     wp_enqueue_style("override", plugin_dir_url(__FILE__) . "src/css/override.css");
 
-    echo "<div class='wrap woocommerce'>" .
-    renderpaymentGateWays();
+    $olt_WC_PaymentWays = Olt_WC_PaymentWays::getInstanec();
+    echo "<div class='wrap woocommerce'>";
+    echo $olt_WC_PaymentWays->renderHtml();
     echo "</div>";
 }
 

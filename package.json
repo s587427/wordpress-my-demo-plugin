@@ -1,0 +1,23 @@
+{
+  "name": "my-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devStart": "npx tailwindcss -i ./src/css/index.css -o ./src/css/bundle.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s587427/wordpress-my-demo-plugin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/s587427/wordpress-my-demo-plugin/issues"
+  },
+  "homepage": "https://github.com/s587427/wordpress-my-demo-plugin#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.3.2"
+  }
+}
