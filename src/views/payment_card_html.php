@@ -1,4 +1,3 @@
-
 <!-- card -->
 <div class="mb-12 bg-slate-200 font-sans rounded-md shadow-lg shadow-slate-400">
   <!-- card-header -->
@@ -18,5 +17,3 @@
   </div>
 
 </div>
-
-

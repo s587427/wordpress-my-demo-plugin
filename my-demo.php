@@ -49,10 +49,7 @@ function registerTopMenu() {
 }
 
 function renderPage() {
-
     enqueueWooCommerceAssets();
-    wp_enqueue_style("override", plugin_dir_url(__FILE__) . "src/css/override.css");
-
     $olt_WC_PaymentWays = Olt_WC_PaymentWays::getInstanec();
     echo "<div class='wrap woocommerce'>";
     echo $olt_WC_PaymentWays->renderHtml();

@@ -51,7 +51,13 @@ class Olt_WC_PaymentWays extends Olt_WC_Settings {
     }
 
     public function renderHtml() {
-        wp_enqueue_style("tailwindcss", plugin_dir_url(__FILE__) . "./css/bundle.css");
+        wp_enqueue_style("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.css");
+        wp_enqueue_script("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.js", array("jquery"), "1.0", true);
+        wp_localize_script("bundle", "localize", array(
+            "ajaxurl" => admin_url("admin-ajax.php"),
+            // "otherdata" => "....",
+            // ....
+        ));
         ?>
         <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script> -->
