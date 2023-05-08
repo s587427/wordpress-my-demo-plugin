@@ -1,0 +1,169 @@
+{
+    "desc1": {
+        "type": "description",
+        "description": "
+GPay Business Console<\/a><\/p>
+
+Testing GPay<\/a><\/p>When test mode is enabled, Google Pay will work without a merchant ID, allowing you to capture the necessary screenshots the Google API team needs to approve your integration request."
+    },
+    "desc2": {
+        "type": "description",
+        "description": "
+
+If you don't want to request a Google Merchant ID, you can use the Payment Request Gateway<\/a> which has a Google Pay integration through Stripe via the Chrome browser.<\/p>"
+    },
+    "enabled": {
+        "title": "Enabled",
+        "type": "checkbox",
+        "default": "no",
+        "value": "yes",
+        "desc_tip": true,
+        "description": "If enabled, your site can accept Google Pay payments through Stripe."
+    },
+    "general_settings": {
+        "type": "title",
+        "title": "General Settings"
+    },
+    "merchant_id": {
+        "type": "text",
+        "title": "Merchant ID",
+        "default": "",
+        "description": "Your Google Merchant ID is given to you by the Google API team once you register for Google Pay. While testing in TEST mode you can leave this value blank and Google Pay will work."
+    },
+    "title_text": {
+        "type": "text",
+        "title": "Title",
+        "default": "Google Pay",
+        "desc_tip": true,
+        "description": "Title of the credit card gateway"
+    },
+    "description": {
+        "title": "Description",
+        "type": "text",
+        "default": "",
+        "description": "Leave blank if you don't want a description to show for the gateway.",
+        "desc_tip": true
+    },
+    "method_format": {
+        "title": "Credit Card Display",
+        "type": "select",
+        "class": "wc-enhanced-select",
+        "options": {
+            "gpay_name": "Visa 1111 (Google Pay)",
+            "type_ending_in": "Visa ending in 1111",
+            "type_masked_number": "Visa ********1111",
+            "type_dash_masked_number": "Visa - ********1111",
+            "type_last4": "Visa 1111",
+            "type_dash_last4": "Visa - 1111",
+            "last4": "1111",
+            "card_type": "Visa",
+            "short_title": "Google Pay"
+        },
+        "value": "",
+        "default": "gpay_name",
+        "desc_tip": true,
+        "description": "This option allows you to customize how the credit card will display for your customers on orders, subscriptions, etc."
+    },
+    "charge_type": {
+        "type": "select",
+        "title": "Charge Type",
+        "default": "capture",
+        "class": "wc-enhanced-select",
+        "options": {
+            "capture": "Capture",
+            "authorize": "Authorize"
+        },
+        "desc_tip": true,
+        "description": "This option determines whether the customer's funds are capture immediately or authorized and can be captured at a later date."
+    },
+    "payment_sections": {
+        "type": "multiselect",
+        "title": "Payment Sections",
+        "class": "wc-enhanced-select",
+        "options": {
+            "product": "Product Page",
+            "cart": "Cart Page",
+            "mini_cart": "Mini Cart",
+            "checkout_banner": "Top of Checkout"
+        },
+        "default": [
+            "product",
+            "cart"
+        ],
+        "description": "Increase your conversion rate by offering Stripe Google Pay on your Product and Cart pages, or at the top of the checkout page. Note:<\/strong> you can control which products display Stripe Google Pay by going to the product edit page."
+    },
+    "order_status": {
+        "type": "select",
+        "title": "Order Status",
+        "default": "default",
+        "class": "wc-enhanced-select",
+        "options": {
+            "default": "Default",
+            "wc-pending": "\u7b49\u5f85\u4ed8\u6b3e\u4e2d",
+            "wc-processing": "\u8655\u7406\u4e2d",
+            "wc-on-hold": "\u4fdd\u7559",
+            "wc-completed": "\u5b8c\u6210",
+            "wc-cancelled": "\u53d6\u6d88",
+            "wc-refunded": "\u5df2\u9000\u8cbb",
+            "wc-failed": "\u5931\u6557",
+            "wc-checkout-draft": "\u8349\u7a3f"
+        },
+        "tool_tip": true,
+        "description": "This is the status of the order once payment is complete. If Default<\/b> is selected, then WooCommerce will set the order status automatically based on internal logic which states if a product is virtual and downloadable then status is set to complete. Products that require shipping are set to Processing. Default is the recommended setting as it allows standard WooCommerce code to process the order status."
+    },
+    "merchant_name": {
+        "type": "text",
+        "title": "Merchant Name",
+        "default": "My WordpressTitle",
+        "description": "The name of your business as it appears on the Google Pay payment sheet.",
+        "desc_tip": true
+    },
+    "icon": {
+        "title": "Icon",
+        "type": "select",
+        "options": {
+            "googlepay_round_outline": "With Rounded Outline",
+            "googlepay_outline": "With Outline",
+            "googlepay_standard": "Standard"
+        },
+        "default": "googlepay_round_outline",
+        "desc_tip": true,
+        "description": "This is the icon style that appears next to the gateway on the checkout page. Google's API team typically requires the With Outline option on the checkout page for branding purposes."
+    },
+    "button_section": {
+        "type": "title",
+        "title": "Button Options"
+    },
+    "button_style": {
+        "title": "Button Style",
+        "type": "select",
+        "class": "gpay-button-option button-style",
+        "options": {
+            "buy": "Buy",
+            "plain": "Plain",
+            "checkout": "Checkout",
+            "order": "Order",
+            "pay": "Pay",
+            "subscribe": "subscribe"
+        },
+        "default": "buy",
+        "description": "The button style of the GPay button."
+    },
+    "button_shape": {
+        "title": "Button Shape",
+        "type": "select",
+        "class": "gpay-button-option gpay-button-shape",
+        "default": "rect",
+        "options": {
+            "pill": "Pill shape",
+            "rect": "Rectangle"
+        },
+        "description": "The button shape"
+    },
+    "button_render": {
+        "type": "button_demo",
+        "title": "Button Design",
+        "id": "gpay-button",
+        "description": "If you can't see the Google Pay button, try switching to a Chrome browser."
+    }
+}

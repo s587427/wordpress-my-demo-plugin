@@ -46,11 +46,16 @@ class Olt_WC_PaymentWays extends Olt_WC_Settings {
         $this->payments["bacs"]             = new WC_Gateway_BACS();
         $this->payments["stripe_cc"]        = new WC_Payment_Gateway_Stripe_CC();
         $this->payments["stripe_googlepay"] = new WC_Payment_Gateway_Stripe_GooglePay();
-        $this->payments["stripe_applepay"]  = new WC_Payment_Gateway_Stripe_ApplePay();
+        // $this->payments["stripe_applepay"]  = new WC_Payment_Gateway_Stripe_ApplePay();
         // below is olt payment
     }
 
     public function renderHtml() {
+        // ! load goolge pay api script
+        wp_enqueue_script("googlePay", "https://pay.google.com/gp/p/js/pay.js");
+        // ! load woo-stripe-payment plugin dependecies
+        wp_enqueue_script('wooStripePaymentGoogle', WC_STRIPE_ASSETS . "js/admin/googlepay.js");
+
         wp_enqueue_style("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.css");
         wp_enqueue_script("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.js", array("jquery"), "1.0", true);
         wp_localize_script("bundle", "localize", array(
@@ -117,7 +122,6 @@ class Olt_WC_Settings extends WC_Settings_API {
             $fieldsHtml = $this->generateSafeTextHtml($htmlId, $fieldValue, $setting);
             break;
         case "textarea":
-
             break;
         case "account_details":
             break;
@@ -139,31 +143,51 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
     // print_r($formFields);
     $pluginId = "woocommerce_";
     // $instanceId = "bacs_"; // ! can shipping methods or payment way or ...
-    $key         = $formFieldKey;
-    $type        = $formFields["type"];
-    $default     = $formFields["default"] ?? "";
-    $title       = $formFields["title"] ?? "";
-    $class       = $formFields["class"];
-    $style       = $formFields["css"];
-    $options     = $formFields["options"] ?? array(); // only select
-    $disabled    = $formFields["disabled"] ?? false;
-    $description = $formFields["description"] ?? "";
-    $value       = $settings[$key] !== '' ? $settings[$key] : $default;
-    $id          = $name          = $pluginId . $instanceId . "_" . $key;
-    $display     = ($formFieldKey === "notice_selector") ? "none" : ""; // ! 目前知道WC_Payment_Gateway_Stripe_CC欄位有這個key
-    $labelHtml   = "<label for='" . esc_attr($id) . "' class='text-base font-semibold block' >" . esc_html($title) . " </label>";
-    $fieldsHtml  = "";
+
+    $key              = $formFieldKey;
+    $type             = $formFields["type"];
+    $default          = $formFields["default"] ?? "";
+    $title            = $formFields["title"] ?? "";
+    $class            = $formFields["class"];
+    $style            = $formFields["css"];
+    $options          = $formFields["options"] ?? array(); // only select
+    $disabled         = $formFields["disabled"] ?? false;
+    $description      = $formFields["description"] ?? "";
+    $customAttributes = getCustomAttributeHtml($formFields);
+    $value            = $settings[$key] !== '' ? $settings[$key] : $default;
+    $id               = $name               = $pluginId . $instanceId . "_" . $key;
+    $labelHtml        = "<label for='" . esc_attr($id) . "' class='text-base font-semibold block' >" . esc_html($title) . " </label>";
+    $fieldsHtml       = "";
+    // echo "<p>id: $id, type: $type, value:$value"; // !debug
 
     switch ($type) {
     case "text":
-        $fieldsHtml =
-        $labelHtml .
-        "<input type='text' class='w-full' id='" . esc_attr($id) . "' name='" . esc_attr($name) . "' placeholder='' value='" . esc_attr($value) . "'>";
+        ob_start();
+        ?>
+        <input
+            type="text"
+            class="w-full"
+            id="<?php echo esc_attr($id) ?>"
+            name="<?php echo esc_attr($name) ?>"
+            placeholder=""
+            value="<?php echo esc_attr($value) ?>"
+            <?php echo $customAttributes ?>
+        >
+        <?php $fieldsHtml = $labelHtml . ob_get_clean();
         break;
     case "safe_text":
-        $fieldsHtml =
-        $labelHtml .
-        "<input type='text' class='w-full' id='" . esc_attr($id) . "' name='" . esc_attr($name) . "' placeholder='' value='" . esc_attr($value) . "'>";
+        ob_start();
+        ?>
+        <input
+            type="text"
+            class="w-full"
+            id="<?php echo esc_attr($id) ?>"
+            name="<?php echo esc_attr($name) ?>"
+            placeholder=""
+            value="<?php echo esc_attr($value) ?>"
+            <?php echo $customAttributes ?>
+        >
+        <?php $fieldsHtml = $labelHtml . ob_get_clean();
         break;
     case "textarea":
         $fieldsHtml =
@@ -187,10 +211,11 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
         ?>
         <select
             id="<?php echo $id ?>"
-            name="<?php echo $id ?>[]"
+            name="<?php echo $id ?>"
             class="w-full <?php echo $class ?>"
             style="<?php echo $style ?>"
             <?php disabled($disabled, true)?>
+            <?php echo $customAttributes ?>
         >
             <?php foreach ((array) $options as $optionKey => $optionValue): ?>
                 <?php if (is_array($optionValue)): ?>
@@ -204,7 +229,10 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
                         <?php endforeach;?>
                     </optgroup>
                 <?php else: ?>
-                    <option value="<?php echo esc_attr($optionKey); ?>" <?php selected(in_array((string) $optionKey, $value, true), true);?>>
+                    <option
+                        value="<?php echo esc_attr($optionKey); ?>"
+                        <?php selected($value, $optionKey);?>
+                        >
                         <?php echo esc_html($optionValue); ?>
                     </option>
                 <?php endif;?>
@@ -215,6 +243,7 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
         <?php $fieldsHtml = $labelHtml . ob_get_clean();
         break;
     case "multiselect":
+        // ! multiselect value is array
         ob_start();
         ?>
         <select
@@ -238,7 +267,9 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
                         <?php endforeach;?>
                     </optgroup>
                 <?php else: ?>
-                    <option value="<?php echo esc_attr($optionKey); ?>" <?php selected(in_array((string) $optionKey, $value, true), true);?>>
+                    <option value="<?php echo esc_attr($optionKey); ?>"
+                        <?php selected(in_array($optionKey, $value), true);?>
+                    >
                         <?php echo esc_html($optionValue); ?>
                     </option>
                 <?php endif;?>
@@ -252,15 +283,35 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
     case "description":
         $fieldsHtml = "<p>$description</p>";
         break;
+    case "button_demo": // * striple google pay
+        // * reference plugins\woo-stripe-payment\includes\admin\views\html-button-demo.php
+        ob_start();
+        ?>
+        <div id="<?php echo $formFields["id"] ?>"></div>
+        <?php $fieldsHtml = $labelHtml . ob_get_clean();
+        break;
     default:
         $fieldsHtml = "<label class='d-block fs-6' for='" . esc_attr($id) . "'></label>" .
         $fieldsHtml .= $formFieldKey . "<p>還沒有設定</p>";
         break;
     }
 
-    echo "<div class='mb-6" . ($formFieldKey === "notice_selector" ? "d-none" : "") . "'>" .
+    echo "<div class='mb-6'" . $customAttributes . ">" .
         $fieldsHtml .
         '</div>';
+}
+
+function getCustomAttributeHtml($data) {
+
+    $custom_attributes = array();
+
+    if (!empty($data['custom_attributes']) && is_array($data['custom_attributes'])) {
+        foreach ($data['custom_attributes'] as $attribute => $attribute_value) {
+            $custom_attributes[] = esc_attr($attribute) . '="' . esc_attr(json_encode($attribute_value)) . '"';
+        }
+    }
+
+    return implode(' ', $custom_attributes);
 }
 
 function getPaymentGateWays($print = false) {

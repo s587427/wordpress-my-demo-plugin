@@ -1,5 +1,5 @@
 <!-- card -->
-<div class="mb-12 bg-slate-200 font-sans rounded-md shadow-lg shadow-slate-400">
+<div class="card-box mb-6 bg-slate-200 font-sans rounded-md shadow-lg shadow-slate-400">
   <!-- card-header -->
   <div class="card-header bg-slate-400 p-3 rounded-t-md">
     <p class="text-lg font-black"><?php echo $gateway->method_title ?></p>
@@ -16,4 +16,9 @@
       <?php endforeach;?>
   </div>
 
+  <?php
+// echo "<pre>";
+// echo json_encode($gateway->form_fields, JSON_PRETTY_PRINT);
+// echo "</pre>";
+?>
 </div>

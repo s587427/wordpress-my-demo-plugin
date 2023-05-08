@@ -31,6 +31,7 @@ function my_plugin_init() {
         require_once WC()->plugin_path() . "/includes/admin/settings/class-wc-settings-page.php";
         // 獲取 WooCommerce 對象
         include INCLUDES_PATH . "/demo_woocommerce_payment.php";
+        include INCLUDES_PATH . "/functions.php";
     }
 
 }

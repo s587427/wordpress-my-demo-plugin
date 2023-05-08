@@ -2,4 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+a:link {
+  @apply text-blue-500;
+  @apply decoration-solid;
+  @apply underline;
+}
+
+p {
+  @apply leading-loose;
+}
+
 @import "another.css";
+@import "payment.css";
