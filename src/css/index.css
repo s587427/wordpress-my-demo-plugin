@@ -9,7 +9,7 @@ a:link {
 }
 
 p {
-  @apply leading-loose;
+  @apply leading-relaxed;
 }
 
 @import "another.css";

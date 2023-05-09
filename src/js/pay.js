@@ -1,6 +1,6 @@
 export function initWoocommercePayment() {
   jQuery(document).ready(function ($) {
-    // ? hide or show custom form
+    // ?*hide or show custom form
     $("#woocommerce_stripe_cc_form_type")
       .on("change", toggleCustomForm)
       .trigger("change")
@@ -16,7 +16,8 @@ export function initWoocommercePayment() {
     $(
       `#woocommerce_bacs_enabled,
        #woocommerce_stripe_cc_enabled, 
-       #woocommerce_stripe_googlepay_enabled`
+       #woocommerce_stripe_googlepay_enabled,
+       #woocommerce_stripe_applepay_enabled`
     )
       .on("init", toggleEnabled)
       .on("click", toggleEnabled)

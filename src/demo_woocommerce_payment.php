@@ -1,5 +1,8 @@
 <?php
 
+!class_exists("WC_Stripe_Manager") && exit("please install woo-striple-payment");
+
+!class_exists("WC_Misha_Gateway") && exit("class WC_Misha_Gateway 不存在");
 class Olt_WC_PaymentWays extends Olt_WC_Settings {
 
     static $instance    = null;
@@ -19,7 +22,8 @@ class Olt_WC_PaymentWays extends Olt_WC_Settings {
     public function handleSubmits() {
 
         foreach ($this->payments as $payment) {
-            if (isset($_POST["submit"])) {
+            // ! 這邊之後要用nonce做驗證
+            if (isset($_POST["updateWCPayNonce"]) && wp_verify_nonce($_POST["updateWCPayNonce"], "updateWCPayAction")) {
                 do_action('woocommerce_update_options_payment_gateways_' . $payment->id);
             }
         }
@@ -46,34 +50,60 @@ class Olt_WC_PaymentWays extends Olt_WC_Settings {
         $this->payments["bacs"]             = new WC_Gateway_BACS();
         $this->payments["stripe_cc"]        = new WC_Payment_Gateway_Stripe_CC();
         $this->payments["stripe_googlepay"] = new WC_Payment_Gateway_Stripe_GooglePay();
-        // $this->payments["stripe_applepay"]  = new WC_Payment_Gateway_Stripe_ApplePay();
+        $this->payments["stripe_applepay"]  = new WC_Payment_Gateway_Stripe_ApplePay();
         // below is olt payment
+        // ! 這邊是透過其他plugin擴充的但是要注意優先權不然就要用他提供的hook(woocommerce_payment_gateways)得到全部的支付網關
+        $this->payments["misha"] = new WC_Misha_Gateway();
     }
 
     public function renderHtml() {
-        // ! load goolge pay api script
-        wp_enqueue_script("googlePay", "https://pay.google.com/gp/p/js/pay.js");
-        // ! load woo-stripe-payment plugin dependecies
-        wp_enqueue_script('wooStripePaymentGoogle', WC_STRIPE_ASSETS . "js/admin/googlepay.js");
+        // ? 之後可根據要不要只在當前plguin頁面載入這些script
+        if (true) {
 
-        wp_enqueue_style("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.css");
-        wp_enqueue_script("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.js", array("jquery"), "1.0", true);
-        wp_localize_script("bundle", "localize", array(
-            "ajaxurl" => admin_url("admin-ajax.php"),
-            // "otherdata" => "....",
-            // ....
-        ));
+            // ! load woo-stripe-payment plugin dependecies
+            wp_enqueue_script("googlePay", "https://pay.google.com/gp/p/js/pay.js"); // ? load goolge pay api script for js/admin/googlepay.js
+            wp_enqueue_script("wooStripePaymentGoogle", WC_STRIPE_ASSETS . "js/admin/googlepay.js");
+            // ?  reference plugins\woo-stripe-payment\includes\admin\class-wc-stripe-admin-assets.php
+            wp_enqueue_script("wc-stripe-admin-settings", WC_STRIPE_ASSETS . "js/admin/admin-settings.js");
+            wp_enqueue_style('wc-stripe-admin-style');
+            wp_style_add_data('wc-stripe-admin-style', 'rtl', 'replace');
+            wp_localize_script(
+                'wc-stripe-admin-settings',
+                'wc_stripe_setting_params',
+                array(
+                    'routes'     => array(
+                        'apple_domain'      => WC_Stripe_Rest_API::get_admin_endpoint(stripe_wc()->rest_api->settings->rest_uri('apple-domain')),
+                        'create_webhook'    => WC_Stripe_Rest_API::get_admin_endpoint(stripe_wc()->rest_api->settings->rest_uri('create-webhook')),
+                        'delete_webhook'    => WC_Stripe_Rest_API::get_admin_endpoint(stripe_wc()->rest_api->settings->rest_uri('delete-webhook')),
+                        'connection_test'   => WC_Stripe_Rest_API::get_admin_endpoint(stripe_wc()->rest_api->settings->rest_uri('connection-test')),
+                        'delete_connection' => WC_Stripe_Rest_API::get_admin_endpoint(stripe_wc()->rest_api->settings->rest_uri('delete-connection')),
+                    ),
+                    'rest_nonce' => wp_create_nonce('wp_rest'),
+                    'messages'   => array(
+                        'delete_connection' => __('Are you sure you want to delete your connection data?', 'woo-stripe-payment'),
+                    ),
+                )
+            );
+
+            wp_enqueue_style("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.css");
+            wp_enqueue_script("bundle", plugin_dir_url(__FILE__) . "../dist/bundle.js", array("jquery"), "1.0", true);
+            wp_localize_script("bundle", "localize", array(
+                "ajaxurl" => admin_url("admin-ajax.php"),
+                // "otherdata" => "....",
+                // ....
+            ));
+        }
         ?>
-        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script> -->
         <form action="" method="post">
-            <div class="custom-card-group md:container p-3">
+            <!-- // ! wc-stripe-settings-container 是 woo-striple plugin定義的class 有些相關js代碼抓取此元素 -->
+            <div class="wc-stripe-settings-container md:container p-3">
                 <?php foreach ($this->payments as $gateway) {
             require plugin_dir_path(__FILE__) . "views/payment_card_html.php";}?>
             </div>
+            <?php wp_nonce_field("updateWCPayAction", "updateWCPayNonce")?>
             <?php submit_button()?>
         </form>
-    <?php
+        <?php
 }
 }
 
@@ -148,8 +178,8 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
     $type             = $formFields["type"];
     $default          = $formFields["default"] ?? "";
     $title            = $formFields["title"] ?? "";
-    $class            = $formFields["class"];
-    $style            = $formFields["css"];
+    $class            = $formFields["class"] ?? "";
+    $style            = $formFields["css"] ?? "";
     $options          = $formFields["options"] ?? array(); // only select
     $disabled         = $formFields["disabled"] ?? false;
     $description      = $formFields["description"] ?? "";
@@ -275,6 +305,7 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
                 <?php endif;?>
             <?php endforeach;?>
         </select>
+        <p class="mt-2"><?php echo $description ?></p>
         <?php $fieldsHtml = $labelHtml . ob_get_clean();
         break;
     case "title":
@@ -288,6 +319,7 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
         ob_start();
         ?>
         <div id="<?php echo $formFields["id"] ?>"></div>
+        <p class="mt-2"><?php echo $description ?></p>
         <?php $fieldsHtml = $labelHtml . ob_get_clean();
         break;
     default:
@@ -296,7 +328,7 @@ function renderFields($formFieldKey, $formFields, $settings, $instanceId = "") {
         break;
     }
 
-    echo "<div class='mb-6'" . $customAttributes . ">" .
+    echo "<div class='mb-4'" . $customAttributes . ">" .
         $fieldsHtml .
         '</div>';
 }
